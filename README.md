@@ -1,15 +1,16 @@
 # firehttp
 
    
-    又一个风骚的golang库， 致力于做北半球比较好用的HTTP库.
-
+    一个专门用于安全工具开发的HTTP类库.
+    
 
 ### 特点
 
 1. header、params、body 均支持string和map定义, 太方便了.
 2. 可以获取到HTTP请求/响应的原始HTTP报文.
 3. 使用起来,真心简单.
-4. ...- -!!! 尽量用优雅的编程方式,让go代码读起来不那么丑陋.
+4. 尽量用优雅的编程方式,让go代码读起来不那么丑陋.
+5. 自己摸索吧.
 
 ### Example
 
@@ -120,6 +121,60 @@ func main() {
 
 
 ```
+
+发送一个POST请求
+
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/dean2021/firehttp"
+	"log"
+)
+
+func main() {
+
+	f := firehttp.New(nil)
+	resp, err := f.Post("https://www.jd.com", &firehttp.ReqOptions{
+		Body: "xxxx",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(resp.RawHTTPRequest())
+}
+```
+上传一个文件
+
+```go
+package main
+
+import (
+	"fmt"
+	"github.com/dean2021/firehttp"
+	"log"
+)
+
+func main() {
+
+	f := firehttp.New(nil)
+	resp, err := f.Post("http://www.baidu.com/upload.php", &firehttp.ReqOptions{
+		Files: []firehttp.FileUpload{
+			{
+				FieldName: "passwd",
+				FileName:  "/etc/passwd",
+			},
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(resp.StatusCode())
+}
+```
+
 
 代码简单易懂,没有写文档,具体可以参考 _example/*.go
 
