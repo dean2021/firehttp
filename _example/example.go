@@ -28,6 +28,11 @@ func main() {
 
 		// KeepAlive 超时时间
 		DialKeepAlive: time.Second * 5,
+
+		// 预设好的header
+		ParentHeader: map[string]string{
+			"User-Agent": "test",
+		},
 	})
 
 	resp, err := f.Get("https://www.jd.com/index.php", &firehttp.ReqOptions{

@@ -47,6 +47,9 @@ type HTTPOptions struct {
 
 	// KeepAlive 超时时间
 	DialKeepAlive time.Duration
+
+	// 预先设置的Header
+	ParentHeader map[string]string
 }
 
 var resolver *dnscache.Resolver
@@ -69,7 +72,7 @@ func (f *FireHttp) DoRequest(method string, rawUrl string, ro *ReqOptions) (*Res
 		return nil, err
 	}
 
-	req, err := BuildRequest(method, rawURL, ro)
+	req, err := f.BuildRequest(method, rawURL, ro)
 	if err != nil {
 		return nil, err
 	}
@@ -169,7 +172,7 @@ func EnsureTransporterFinalized(httpTransport *http.Transport) {
 
 // 构建请求
 // 支持body格式string或[]byte
-func BuildRequest(method string, rawURL string, ro *ReqOptions) (*http.Request, error) {
+func (f *FireHttp) BuildRequest(method string, rawURL string, ro *ReqOptions) (*http.Request, error) {
 
 	req, err := http.NewRequest(method, rawURL, nil)
 	if err != nil {
@@ -177,7 +180,7 @@ func BuildRequest(method string, rawURL string, ro *ReqOptions) (*http.Request, 
 	}
 
 	if ro.Body != nil {
-		req, err = BuildBasicRequest(method, rawURL, ro)
+		req, err = f.BuildBasicRequest(method, rawURL, ro)
 		if err != nil {
 			return nil, err
 		}
@@ -190,7 +193,7 @@ func BuildRequest(method string, rawURL string, ro *ReqOptions) (*http.Request, 
 		}
 	}
 
-	err = setHeaders(req, ro)
+	err = f.SetHeaders(req, ro)
 	if err != nil {
 		return nil, err
 	}
@@ -199,7 +202,7 @@ func BuildRequest(method string, rawURL string, ro *ReqOptions) (*http.Request, 
 }
 
 // 构建基础请求
-func BuildBasicRequest(method string, rawURL string, ro *ReqOptions) (*http.Request, error) {
+func (f *FireHttp) BuildBasicRequest(method string, rawURL string, ro *ReqOptions) (*http.Request, error) {
 	var reader io.Reader
 	switch ro.Body.(type) {
 	case string:
@@ -307,9 +310,16 @@ func buildPostFileUploadRequest(method string, rawURL string, ro *ReqOptions) (*
 
 // 设置header
 // 仅支持string和map[string]string类型
-func setHeaders(req *http.Request, ro *ReqOptions) error {
+func (f *FireHttp) SetHeaders(req *http.Request, ro *ReqOptions) error {
 
 	var err error
+
+	if f.Setting.ParentHeader != nil {
+		for key, val := range f.Setting.ParentHeader {
+			req.Header.Set(key, val)
+		}
+	}
+
 	if ro.Header != nil {
 		switch ro.Header.(type) {
 		case map[string]string:
