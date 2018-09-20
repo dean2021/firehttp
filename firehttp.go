@@ -50,6 +50,9 @@ type HTTPOptions struct {
 
 	// 预先设置的Header
 	ParentHeader map[string]string
+
+	// 预先设置好的http请求超时时间
+	ParentHTTPTimeout time.Duration
 }
 
 var resolver *dnscache.Resolver
@@ -63,7 +66,11 @@ func (f *FireHttp) DoRequest(method string, rawUrl string, ro *ReqOptions) (*Res
 
 	// 默认请求超时时间
 	if ro.Timeout == 0 {
-		ro.Timeout = 60 * time.Second
+		if f.Setting.ParentHTTPTimeout != 0{
+			ro.Timeout = f.Setting.ParentHTTPTimeout
+		}else{
+			ro.Timeout = 60 * time.Second
+		}
 	}
 
 	var httpClient *http.Client

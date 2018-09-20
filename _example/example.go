@@ -33,6 +33,8 @@ func main() {
 		ParentHeader: map[string]string{
 			"User-Agent": "test",
 		},
+
+		ParentHTTPTimeout: time.Second * 1,
 	})
 
 	resp, err := f.Get("https://www.jd.com/index.php", &firehttp.ReqOptions{
