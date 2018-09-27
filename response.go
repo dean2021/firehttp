@@ -73,5 +73,9 @@ func (r *Response) RawHTTPResponse() string {
 }
 
 func (r *Response) Close() error {
-	return r.RawResponse.Body.Close()
+	if r.RawResponse.Body != nil {
+		return r.RawResponse.Body.Close()
+	} else {
+		return nil
+	}
 }
