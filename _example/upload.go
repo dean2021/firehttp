@@ -10,6 +10,9 @@ func main() {
 
 	f := firehttp.New(nil)
 	resp, err := f.Post("http://www.baidu.com/upload.php", &firehttp.ReqOptions{
+		Body: map[string]string{
+			"foo": "bar",
+		},
 		Files: []firehttp.FileUpload{
 			{
 				FieldName: "passwd",

@@ -66,9 +66,9 @@ func (f *FireHttp) DoRequest(method string, rawUrl string, ro *ReqOptions) (*Res
 
 	// 默认请求超时时间
 	if ro.Timeout == 0 {
-		if f.Setting.ParentHTTPTimeout != 0{
+		if f.Setting.ParentHTTPTimeout != 0 {
 			ro.Timeout = f.Setting.ParentHTTPTimeout
-		}else{
+		} else {
 			ro.Timeout = 60 * time.Second
 		}
 	}
@@ -297,6 +297,19 @@ func buildPostFileUploadRequest(method string, rawURL string, ro *ReqOptions) (*
 		if err := f.FileBody.Close(); err != nil {
 			return nil, err
 		}
+	}
+
+	switch ro.Body.(type) {
+	case string:
+		requestBody.Write([]byte(ro.Body.(string)))
+	case []byte:
+		requestBody.Write(ro.Body.([]byte))
+	case map[string]string:
+		for key, value := range ro.Body.(map[string]string) {
+			_ = multipartWriter.WriteField(key, value)
+		}
+	default:
+		return nil, errors.New("body type error, only support string and map[string]string or []byte type")
 	}
 
 	if err := multipartWriter.Close(); err != nil {
