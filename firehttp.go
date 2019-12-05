@@ -299,19 +299,20 @@ func buildPostFileUploadRequest(method string, rawURL string, ro *ReqOptions) (*
 		}
 	}
 
-	switch ro.Body.(type) {
-	case string:
-		requestBody.Write([]byte(ro.Body.(string)))
-	case []byte:
-		requestBody.Write(ro.Body.([]byte))
-	case map[string]string:
-		for key, value := range ro.Body.(map[string]string) {
-			_ = multipartWriter.WriteField(key, value)
+	if ro.Body != nil {
+		switch ro.Body.(type) {
+		case string:
+			requestBody.Write([]byte(ro.Body.(string)))
+		case []byte:
+			requestBody.Write(ro.Body.([]byte))
+		case map[string]string:
+			for key, value := range ro.Body.(map[string]string) {
+				_ = multipartWriter.WriteField(key, value)
+			}
+		default:
+			return nil, errors.New("body type error, only support string and map[string]string or []byte type")
 		}
-	default:
-		return nil, errors.New("body type error, only support string and map[string]string or []byte type")
 	}
-
 	if err := multipartWriter.Close(); err != nil {
 		return nil, err
 	}
